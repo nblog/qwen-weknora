@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-package/
+.tmp/
+.tmp-qwen/
+npm-debug.log*
+test-results/
+coverage/
+.tmp-*
+/.codex-tracking/

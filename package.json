@@ -1,0 +1,34 @@
+{
+  "name": "weknora-agent-plugin",
+  "version": "0.1.0",
+  "description": "Client-neutral Agent Plugins package exposing WeKnora retrieval, reading, and server-side RAG tools over stdio MCP.",
+  "keywords": [
+    "agent-plugins",
+    "mcp",
+    "weknora",
+    "rag",
+    "retrieval",
+    "knowledge-base"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "npm run typecheck && esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/server.js --sourcemap",
+    "test": "node --experimental-strip-types --test \"test/config-contract/*.test.mjs\" \"test/rest-client/*.test.mjs\" \"test/tool-contract/*.test.mjs\" \"test/mcp-server/*.test.mjs\" \"test/package-contract/*.test.mjs\" \"test/package-e2e/*.test.mjs\" \"test/client-e2e/*.test.mjs\"",
+    "package": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-package.ps1"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "ajv": "8.20.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.8",
+    "esbuild": "0.28.2",
+    "typescript": "5.8.3"
+  }
+}

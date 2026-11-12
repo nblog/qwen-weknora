@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:weknora-agent-plugin:config:v1",
+  "title": "WeKnora Agent Plugin configuration",
+  "description": "Authoritative schema for ${PLUGIN_DATA}/config.json, loaded via --config by the local stdio MCP server. See docs/notes/configuration.md for normalization and startup failure behavior.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional editor-only hint pointing to the config schema shipped with the plugin. The runtime ignores it and never fetches it; remove or adjust the path after copying the example outside the plugin package."
+    },
+    "baseUrl": {
+      "type": "string",
+      "pattern": "^https?://[^/?#\\s]+(?:[/?#]\\S*)?$",
+      "format": "uri",
+      "default": "http://localhost:8080/api/v1",
+      "description": "Absolute http/https URL with a non-empty hostname; the WeKnora API root may omit the /api/v1 suffix, which is normalized at load time."
+    },
+    "apiKey": {
+      "type": "string",
+      "minLength": 1,
+      "description": "API key sent as X-API-Key. Omit only for deployments that do not require authentication. Sensitive: keep this file out of the published package."
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Workspace id sent as X-Tenant-ID; required only for platform-scoped API keys."
+    },
+    "knowledgeBaseIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": [],
+      "description": "Default knowledge-base scope when a call names none. Call arguments override it; it is NOT a permission allow-list."
+    },
+    "agentId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Default custom agent for weknora_ask; omit to use the server-side RAG pipeline. Availability and permissions are constrained by the server."
+    },
+    "maxResults": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 8,
+      "description": "Default and maximum number of search hits and ask references."
+    },
+    "maxChunkChars": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1200,
+      "description": "Per-chunk character budget; document reading clips concatenated text to ten times this value."
+    },
+    "requestTimeoutMs": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 30000,
+      "description": "Timeout for non-streaming REST requests."
+    },
+    "chatTimeoutMs": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 300000,
+      "description": "Timeout for the whole ask SSE stream, including model and tool execution time."
+    },
+    "resourceUrls": {
+      "enum": ["handle", "public"],
+      "default": "public",
+      "description": "public asks WeKnora for directly loadable file URLs; handle keeps internal references. A 403 that explicitly names resource_urls=public downgrades that process to handle mode."
+    },
+    "tools": {
+      "type": "object",
+      "properties": {
+        "listKnowledgeBases": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register weknora_list_knowledge_bases."
+        },
+        "search": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register weknora_search."
+        },
+        "readDocument": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register weknora_read_document."
+        },
+        "ask": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register weknora_ask."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Per-tool registration switches; omitted entries default to true. At least one tool must stay enabled."
+    }
+  },
+  "additionalProperties": false,
+  "not": {
+    "properties": {
+      "tools": {
+        "type": "object",
+        "properties": {
+          "listKnowledgeBases": {
+            "const": false
+          },
+          "search": {
+            "const": false
+          },
+          "readDocument": {
+            "const": false
+          },
+          "ask": {
+            "const": false
+          }
+        },
+        "required": ["listKnowledgeBases", "search", "readDocument", "ask"],
+        "additionalProperties": false
+      }
+    },
+    "required": ["tools"]
+  }
+}

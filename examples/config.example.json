@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/config.schema.json",
+  "baseUrl": "https://weknora.example.test/api/v1",
+  "apiKey": "replace-with-your-deployment-api-key",
+  "knowledgeBaseIds": ["kb-product-docs"],
+  "maxResults": 8,
+  "maxChunkChars": 1200,
+  "requestTimeoutMs": 30000,
+  "chatTimeoutMs": 300000,
+  "resourceUrls": "public",
+  "tools": {
+    "listKnowledgeBases": true,
+    "search": true,
+    "readDocument": true,
+    "ask": true
+  }
+}

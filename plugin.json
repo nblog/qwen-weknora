@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "weknora-agent-plugin",
+  "version": "0.1.0",
+  "description": "WeKnora knowledge retrieval, document reading, and server-side RAG tools for Agent Plugins clients.",
+  "license": "MIT",
+  "keywords": [
+    "agent-plugins",
+    "mcp",
+    "weknora",
+    "rag",
+    "retrieval"
+  ]
+}
