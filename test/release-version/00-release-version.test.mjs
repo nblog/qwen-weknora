@@ -6,7 +6,7 @@ import { join, resolve, sep } from 'node:path'
 import test from 'node:test'
 import { checkVersions, readJson, releaseIdentity, setVersion } from '../../.agents/skills/release-version/scripts/version.mjs'
 import { sha256, verifyArtifacts } from '../../.agents/skills/release-version/scripts/artifacts.mjs'
-import { checkLocalTag, checkRemoteTag, checkSource } from '../../.agents/skills/release-version/scripts/release.mjs'
+import { checkLocalTag, checkRemoteTag, checkResumeSource, checkSource } from '../../.agents/skills/release-version/scripts/release.mjs'
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'weknora-version-test-'))
@@ -95,6 +95,13 @@ test('real Git checks reject stale tag targets and tracked generated or private 
   git('commit', '-m', 'Changed source')
   assert.throws(() => checkLocalTag(root, 'v1.2.3', git('rev-parse', 'HEAD')), /different commit/)
   assert.throws(() => checkRemoteTag(root, 'v1.2.3', git('rev-parse', 'HEAD')), /different commit/)
+  const draft = { draft: true, tag_name: 'v1.2.3', target_commitish: first }
+  assert.equal(checkResumeSource(root, releaseIdentity(root), draft), first)
+  assert.throws(() => checkResumeSource(root, releaseIdentity(root), { ...draft, draft: false }), /unpublished draft/)
+  writeFileSync(join(root, 'README.md'), 'Changed release input')
+  git('add', 'README.md')
+  git('commit', '-m', 'Changed release input')
+  assert.throws(() => checkResumeSource(root, releaseIdentity(root), draft), /inputs changed/)
   for (const forbidden of ['release/should-not-be-tracked.zip', '.codex-tracking/private.txt']) {
     mkdirSync(join(root, forbidden.split('/')[0]), { recursive: true })
     writeFileSync(join(root, forbidden), 'fixture data')

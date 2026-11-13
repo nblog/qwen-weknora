@@ -53,13 +53,32 @@ function repository(root) {
   return match[1]
 }
 
-function api(root, path, missing = false) {
-  const result = spawnSync('gh', ['api', path], { cwd: root, encoding: 'utf8', windowsHide: true })
-  if (result.status === 0) return JSON.parse(result.stdout)
-  let response
-  try { response = JSON.parse(result.stdout) } catch { /* Preserve the original CLI failure below. */ }
-  if (missing && String(response?.status) === '404') return null
-  throw new Error(result.error?.message || result.stderr || 'GitHub API request failed')
+function api(root, path) {
+  return JSON.parse(run(root, 'gh', ['api', path]))
+}
+
+// The by-tag REST endpoint omits drafts, even for this repository's owner.
+export function readRelease(root, repo, tag) {
+  const pages = JSON.parse(run(root, 'gh', ['api', '--paginate', '--slurp', `repos/${repo}/releases?per_page=100`]))
+  return pages.flat().find(release => release.tag_name === tag) ?? null
+}
+
+/** Resume only an existing draft whose frozen runtime inputs are unchanged. */
+export function checkResumeSource(root, identity, draft) {
+  if (!draft?.draft || draft.tag_name !== identity.tag || !/^[0-9a-f]{40}$/.test(draft.target_commitish)) {
+    throw new Error('Resume requires the matching unpublished draft with an exact source commit')
+  }
+  const target = draft.target_commitish
+  const taggedPackage = JSON.parse(git(root, 'show', `${target}:package.json`))
+  if (taggedPackage.name !== identity.name || taggedPackage.version !== identity.version) {
+    throw new Error('Draft source package differs from package.json identity')
+  }
+  const inputs = ['src', 'scripts', 'package.json', 'package-lock.json', 'plugin.json', 'mcp.json',
+    'skills', 'schemas', 'examples', 'README.md', 'README_zh-CN.md', 'LICENSE', 'NOTICE']
+  if (git(root, 'diff', '--name-only', target, 'HEAD', '--', ...inputs)) {
+    throw new Error('Release inputs changed after the draft was created; refusing to reuse its assets')
+  }
+  return target
 }
 
 function ensureTag(root, identity, head) {
@@ -72,26 +91,31 @@ function npm(root, script) {
   run(root, process.execPath, [resolve(process.env.npm_execpath), 'run', script], true)
 }
 
-async function publish(root, identity) {
+async function publish(root, identity, resume) {
   const { branch, head } = cleanHead(root, identity)
   const repo = repository(root)
-  const endpoint = `repos/${repo}/releases/tags/${encodeURIComponent(identity.tag)}`
-  checkLocalTag(root, identity.tag, head)
-  checkRemoteTag(root, identity.tag, head)
-  if (api(root, endpoint, true)) throw new Error(`${identity.tag} already has a Release; inspect it instead of overwriting`)
-  npm(root, 'package')
-  npm(root, 'test')
+  let draft = readRelease(root, repo, identity.tag)
+  const target = resume ? checkResumeSource(root, identity, draft) : head
+  checkLocalTag(root, identity.tag, target)
+  checkRemoteTag(root, identity.tag, target)
+  if (!resume && draft) throw new Error(`${identity.tag} already has a Release; inspect its state before resuming a draft`)
+  if (!resume) {
+    npm(root, 'package')
+    npm(root, 'test')
+  }
   if (cleanHead(root, identity).head !== head) throw new Error('HEAD changed during release verification')
   const assets = verifyArtifacts(root)
   git(root, 'push', '--set-upstream', 'origin', `HEAD:refs/heads/${branch}`)
-  ensureTag(root, identity, head)
-  git(root, 'push', 'origin', `refs/tags/${identity.tag}`)
   const gh = (...args) => run(root, 'gh', ['release', ...args, '--repo', repo], true)
-  gh('create', identity.tag, '--draft', '--verify-tag', '--target', head, '--title', identity.tag, '--notes',
-    `Prebuilt ${identity.name} ${identity.version}. Requires Node.js ${identity.nodeRequirement}. Download the ZIP; the manifest and SHA-256 file verify the assets.`)
-  gh('upload', identity.tag, ...assets.map(asset => asset.path))
-  const draft = api(root, endpoint)
-  if (!draft.draft || draft.tag_name !== identity.tag || draft.target_commitish !== head || draft.assets.length !== assets.length) {
+  if (!resume) {
+    ensureTag(root, identity, target)
+    git(root, 'push', 'origin', `refs/tags/${identity.tag}`)
+    gh('create', identity.tag, '--draft', '--verify-tag', '--target', target, '--title', identity.tag, '--notes',
+      `Prebuilt ${identity.name} ${identity.version}. Requires Node.js ${identity.nodeRequirement}. Download the ZIP; the manifest and SHA-256 file verify the assets.`)
+    gh('upload', identity.tag, ...assets.map(asset => asset.path))
+    draft = readRelease(root, repo, identity.tag)
+  }
+  if (!draft?.draft || draft.tag_name !== identity.tag || draft.target_commitish !== target || draft.assets.length !== assets.length) {
     throw new Error('Unexpected draft Release state; leave it unpublished for inspection')
   }
   const directory = mkdtempSync(join(tmpdir(), 'weknora-release-verify-'))
@@ -108,21 +132,22 @@ async function publish(root, identity) {
     rmSync(directory, { recursive: true, force: true })
   }
   gh('edit', identity.tag, '--draft=false', `--prerelease=${identity.prerelease}`, identity.prerelease ? '--latest=false' : '--latest', '--verify-tag')
-  const released = api(root, endpoint)
-  if (released.draft || released.prerelease !== identity.prerelease) throw new Error('Release publication was not confirmed')
-  checkRemoteTag(root, identity.tag, head)
+  const released = readRelease(root, repo, identity.tag)
+  if (!released || released.draft || released.prerelease !== identity.prerelease) throw new Error('Release publication was not confirmed')
+  checkRemoteTag(root, identity.tag, target)
   const remoteHead = git(root, 'ls-remote', 'origin', `refs/heads/${branch}`).split(/\s+/)[0]
   if (remoteHead !== head) throw new Error('Remote source commit differs from the release commit')
   const tree = api(root, `repos/${repo}/git/trees/${head}`)
   if (tree.tree.some(entry => ['release', '.codex-tracking'].includes(entry.path))) throw new Error('Private or generated directory is present remotely')
-  console.log(JSON.stringify({ version: identity.version, tag: identity.tag, commit: head, url: released.html_url, assets }, null, 2))
+  console.log(JSON.stringify({ version: identity.version, tag: identity.tag, commit: target, sourceBranchCommit: head, url: released.html_url, assets }, null, 2))
 }
 
 async function main() {
   const [command, ...args] = process.argv.slice(2)
   if (!['check', 'verify', 'branch', 'tag', 'publish'].includes(command)
-    || (args.length && !(command === 'tag' && args.length === 1 && args[0] === '--push'))) {
-    throw new Error('usage: release.mjs check | verify | branch | tag [--push] | publish')
+    || (args.length && !(args.length === 1 && ((command === 'tag' && args[0] === '--push')
+      || (command === 'publish' && args[0] === '--resume'))))) {
+    throw new Error('usage: release.mjs check | verify | branch | tag [--push] | publish [--resume]')
   }
   const identity = checkSource()
   if (command === 'check') return console.log(JSON.stringify(identity, null, 2))
@@ -134,7 +159,7 @@ async function main() {
     if (args[0] === '--push') git(projectRoot, 'push', 'origin', `refs/tags/${identity.tag}`)
     return console.log(identity.tag)
   }
-  await publish(projectRoot, identity)
+  await publish(projectRoot, identity, args[0] === '--resume')
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

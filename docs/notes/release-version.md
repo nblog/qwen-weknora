@@ -18,4 +18,6 @@
 
 已存在同版本 Release 或不匹配的 Tag 必须核对后处理，禁止隐式移动、覆盖或追加错误版本资产。操作失败时如实记录已完成的外部步骤，再判断恢复方式；不能把上传了一部分当作发布成功。
 
+GitHub 按 Tag 的 REST 接口可能对 draft 返回 404，状态判断使用分页 Release 列表。已有完整资产的未公开 draft 可按技能的 `--resume` 入口恢复：冻结原源提交和 Tag，检查当前代码没有改变分发输入，并重新下载核对所有资产；仅发布控制脚本等非分发输入修复可继续，不能借恢复流程移动 Tag、换包或覆盖已公开 Release。
+
 下载入口：[GitHub Releases](https://github.com/nblog/qwen-weknora/releases)。仓库文件树不再提供 `release/` 目录；源码构建和测试仍可使用本地同名目录。

@@ -22,6 +22,7 @@ description: Manage this project's version upgrades, release branches, Git tags,
 | 明确要求推送 Tag | `npm run release:tag -- --push` |
 | 构建产物后核验 | `npm run release:verify` |
 | 发布当前版本 | `npm run release:publish` |
+| 核对后恢复已上传完整资产的 draft | `npm run release:publish -- --resume` |
 
 本次仅迁移已有产物到 GitHub Releases 时，沿用当前版本，不擅自 bump。用户未给具体升级值时，可按改动提出建议；无法从上下文确定破坏性影响时先澄清，其他已授权工作继续推进。
 
@@ -34,6 +35,8 @@ description: Manage this project's version upgrades, release branches, Git tags,
 
 `release/` 只有本地用途，内部忽略文件必须保持 `*`；不上传通配符目录、私有记录、测试或构建缓存。不要把“创建 release 分支”或“升级 version”的请求扩成外部发布。
 
-脚本会拒绝版本漂移、脏工作区、私有/产物被 Git 跟踪、错误 Tag 目标和重复 Release。若外部操作失败或结果未知，先读取现有 Tag、Release 和资产状态；在原有授权内完成明确缺失的步骤，不盲目重发创建命令，不使用 `--clobber` 或 force。移动 Tag、替换已发布内容需要用户明确授权，已有授权不重复询问。
+脚本会拒绝版本漂移、脏工作区、私有/产物被 Git 跟踪、错误 Tag 目标和重复 Release。GitHub 按 Tag 的 REST 接口可能不返回 draft，脚本分页读取 Release 列表识别状态。若外部操作失败或结果未知，先读取现有 Tag、Release 和资产状态；在原有授权内完成明确缺失的步骤，不盲目重发创建命令，不使用 `--clobber` 或 force。移动 Tag、替换已发布内容需要用户明确授权，已有授权不重复询问。
+
+`--resume` 只恢复同一未发布 draft：版本、Tag 和源提交必须匹配，运行时、构建输入与所有随包文件相对 draft 源提交不得变化；三份已上传资产必须完整且下载哈希匹配。允许发布控制脚本等非分发输入的修复提交，保留原 Tag/资产，不重新构建或覆盖；已公开 Release、缺失资产或分发输入变化一律停止。
 
 详细约束与验收见 [版本与发布说明](../../../docs/notes/release-version.md)。脚本只绑定当前技能所在仓库，不接受任意目标仓库或独立版本覆盖参数。
