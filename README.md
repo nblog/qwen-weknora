@@ -1,6 +1,6 @@
 # WeKnora Agent Plugin
 
-English | [简体中文](README_zh-CN.md)
+English | [简体中文](README.zh-CN.md)
 
 A [WeKnora](https://github.com/Tencent/WeKnora) integration built on [Agent Plugins](https://agent-plugins.org/specification).
 

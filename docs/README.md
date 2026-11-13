@@ -1,6 +1,6 @@
 # 文档总纲
 
-本文件是 `docs/` 的统一导航入口。`docs/` 正式文档使用简体中文；根 [README.md](../README.md) 默认英文，并提供[简体中文版](../README_zh-CN.md)。JSON Schema 与示例中的描述性文字使用英文代码注释风格。文档职责划分遵循根 [AGENTS.md](../AGENTS.md)。
+本文件是 `docs/` 的统一导航入口。`docs/` 正式文档使用简体中文；根 [README.md](../README.md) 默认英文，并提供[简体中文版](../README.zh-CN.md)。JSON Schema 与示例中的描述性文字使用英文代码注释风格。文档职责划分遵循根 [AGENTS.md](../AGENTS.md)。
 
 ## 阅读顺序
 

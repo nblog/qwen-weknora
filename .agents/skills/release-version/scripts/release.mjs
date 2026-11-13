@@ -74,7 +74,7 @@ export function checkResumeSource(root, identity, draft) {
     throw new Error('Draft source package differs from package.json identity')
   }
   const inputs = ['src', 'scripts', 'package.json', 'package-lock.json', 'plugin.json', 'mcp.json',
-    'skills', 'schemas', 'examples', 'README.md', 'README_zh-CN.md', 'LICENSE', 'NOTICE']
+    'skills', 'schemas', 'examples', 'README.md', 'README.zh-CN.md', 'LICENSE', 'NOTICE']
   if (git(root, 'diff', '--name-only', target, 'HEAD', '--', ...inputs)) {
     throw new Error('Release inputs changed after the draft was created; refusing to reuse its assets')
   }

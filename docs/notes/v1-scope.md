@@ -71,7 +71,7 @@ weknora-agent-plugin/
 ├── LICENSE                     # 本项目许可证
 ├── NOTICE                      # 上游 MIT 代码的版权与许可通知（实现阶段落地）
 ├── README.md                   # 默认英文介绍与 Usage；顶部链接简体中文版
-└── README_zh-CN.md             # 简体中文介绍与使用；顶部链接英文版
+└── README.zh-CN.md             # 简体中文介绍与使用；顶部链接英文版
 ```
 
 约束：

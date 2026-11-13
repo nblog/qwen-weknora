@@ -51,7 +51,7 @@ try {
         "mcp.json",
         "package.json",
         "README.md",
-        "README_zh-CN.md",
+        "README.zh-CN.md",
         "LICENSE",
         "NOTICE",
         "skills/weknora/SKILL.md",
