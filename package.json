@@ -18,8 +18,14 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "npm run typecheck && esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/server.js --sourcemap",
-    "test": "node --experimental-strip-types --test \"test/config-contract/*.test.mjs\" \"test/rest-client/*.test.mjs\" \"test/tool-contract/*.test.mjs\" \"test/mcp-server/*.test.mjs\" \"test/package-contract/*.test.mjs\" \"test/package-e2e/*.test.mjs\" \"test/client-e2e/*.test.mjs\"",
-    "package": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-package.ps1"
+    "test": "node --experimental-strip-types --test \"test/config-contract/*.test.mjs\" \"test/rest-client/*.test.mjs\" \"test/tool-contract/*.test.mjs\" \"test/mcp-server/*.test.mjs\" \"test/package-contract/*.test.mjs\" \"test/package-e2e/*.test.mjs\" \"test/client-e2e/*.test.mjs\" \"test/release-version/*.test.mjs\"",
+    "package": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-package.ps1",
+    "release:check": "node .agents/skills/release-version/scripts/release.mjs check",
+    "release:version": "node .agents/skills/release-version/scripts/version.mjs set",
+    "release:verify": "node .agents/skills/release-version/scripts/release.mjs verify",
+    "release:branch": "node .agents/skills/release-version/scripts/release.mjs branch",
+    "release:tag": "node .agents/skills/release-version/scripts/release.mjs tag",
+    "release:publish": "node .agents/skills/release-version/scripts/release.mjs publish"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
@@ -29,6 +35,7 @@
   "devDependencies": {
     "@types/node": "22.13.8",
     "esbuild": "0.28.2",
+    "semver": "7.8.6",
     "typescript": "5.8.3"
   }
 }

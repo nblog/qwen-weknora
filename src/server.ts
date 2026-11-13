@@ -5,6 +5,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import type { WeknoraClient } from './client.ts'
 import type { ResolvedConfig } from './config.ts'
 import { createTools } from './tools.ts'
+import packageManifest from '../package.json' with { type: 'json' }
 
 export interface WeknoraMcpApplication {
   readonly server: McpServer
@@ -15,11 +16,10 @@ export interface WeknoraMcpApplication {
 export function createWeknoraMcpServer(
   client: WeknoraClient,
   config: ResolvedConfig,
-  version = '0.1.0',
 ): WeknoraMcpApplication {
   const server = new McpServer({
     name: 'weknora',
-    version,
+    version: packageManifest.version,
   })
   const shutdown = new AbortController()
   const secrets = [config.apiKey, config.tenantId]

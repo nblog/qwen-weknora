@@ -1,6 +1,6 @@
 # 安装、配置与使用
 
-状态：当前有效｜基线日期：2026-11-12｜适用版本：`weknora-agent-plugin` 0.1.0
+状态：当前有效｜更新日期：2026-11-13｜项目版本以 [package.json](../../package.json) 的 `version` 为准
 
 ## 运行要求
 
@@ -15,7 +15,7 @@
 按所用客户端的 Agent Plugins 安装方式选择：
 
 1. 从本地插件目录安装或 link，用于开发验证；
-2. 从 `release/weknora-agent-plugin-0.1.0.zip` 安装，用于独立产物验证。
+2. 从 [GitHub Releases](https://github.com/nblog/qwen-weknora/releases/latest) 下载版本对应的 ZIP 并安装。仓库文件树不再存放发布产物。
 
 不要把归档解压到需要运行时写入的目录；插件包根目录视为只读 `PLUGIN_ROOT`。
 
@@ -55,11 +55,11 @@
 维护者可在仓库根目录执行：
 
 ```powershell
-npm install
-npm run typecheck
-npm run build
+npm ci
 npm run package
 npm test
 ```
 
-`npm run package` 使用显式文件白名单生成 `release/weknora-agent-plugin-<version>.zip`、SHA-256 校验文件和逐文件清单。`npm test` 的安装产物与首个客户端 e2e 组会解压/安装该归档，因此在全新构建后先打包再执行测试。测试、研究快照、用户配置、`node_modules/` 与构建缓存不会进入归档。
+`npm run package` 校验版本投影，使用显式文件白名单在忽略的本地 `release/` 生成当前包名/版本的 ZIP、SHA-256 文件和逐文件清单，并保留内部 `.gitignore`。`npm test` 会解压/安装该归档，因此全新 clone 后先打包再测试。测试、研究快照、用户配置、`node_modules/` 与构建缓存不进入归档。
+
+版本升级、release 分支、Tag 和正式发布主动使用 [release-version 技能](../../.agents/skills/release-version/SKILL.md)，不手改其他文件中的版本或直接拼接发布名。正式产物上传到 GitHub Releases。

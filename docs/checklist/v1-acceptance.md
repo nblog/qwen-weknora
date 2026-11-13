@@ -134,6 +134,14 @@
 
 公开文档本地链接已独立检查，共 149 个可解析；测试 schema 与 REST fixture 的原始校验和、来源和许可证由公开契约目录维护。本次只调整测试输入位置和公开资料边界，不修改生产运行时。
 
+## 2026-11-13 版本与 GitHub Releases 约束
+
+新增 [ADR-0006](../adr/0006-version-authority-and-github-releases.md)、项目技能与版本/发布脚本。`package.json.version` 是唯一版本来源，其他项目版本字段为投影；运行时和测试不再维护独立版本常量。
+
+发布前已执行：4 项隔离文件/Git 测试通过，覆盖升级后投影与命名、版本漂移拒绝、过期/篡改产物拒绝、错误本地/远端 Tag 目标以及被 Git 跟踪的产物/私有文件拒绝；技能格式校验通过；版本检查、typecheck/build、打包与三份资产校验通过。本地 `release/.gitignore` 在打包后仍为 `*`，产物不再被 Git 跟踪。
+
+正式发布由 `npm run release:publish` 执行完整测试、准确源提交/Tag、draft 上传及下载校验，通过后才公开。实际发布状态、资产与摘要以 [GitHub Releases](https://github.com/nblog/qwen-weknora/releases) 和发布脚本核验输出为准；历史验收结果不因此改写。
+
 ## 文档基线阶段已执行的检查（2026-11-12）
 
 以下仅覆盖**文档与机器可读契约本身**，不是插件运行验收：

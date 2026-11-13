@@ -5,14 +5,13 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { WeknoraClient } from './client.ts'
 import { loadConfigFile, parseConfigArgv } from './config.ts'
 import { createWeknoraMcpServer, type WeknoraMcpApplication } from './server.ts'
-import packageManifest from '../package.json' with { type: 'json' }
 
 /** Load config, build the server, and connect the process stdio transport. */
 export async function runCli(argv: readonly string[]): Promise<WeknoraMcpApplication> {
   const configPath = parseConfigArgv(argv)
   const config = await loadConfigFile(configPath)
   const client = new WeknoraClient(config)
-  const application = createWeknoraMcpServer(client, config, packageManifest.version)
+  const application = createWeknoraMcpServer(client, config)
   const transport = new StdioServerTransport()
   await application.server.connect(transport)
   return application

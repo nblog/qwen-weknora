@@ -12,7 +12,8 @@
 4. [运行架构](notes/architecture.md)、[工具契约](notes/tools.md)、[配置契约](notes/configuration.md)：实现必须遵守的稳定约束。
 5. [首个客户端兼容说明](notes/client-compatibility.md)：验证目标客户端的专属边界，不是通用规范。
 6. [上游同步基线与差异台账](notes/upstream-sync.md)：固定上游 commit、真实映射与有意差异。
-7. [v1 交付计划](notes/v1-delivery-plan.md) 与 [v1 验收清单](checklist/v1-acceptance.md)：实现与 e2e 阶段入口。
+7. [版本与发布](notes/release-version.md)、[项目发布技能](../.agents/skills/release-version/SKILL.md)：版本权威、分支、Tag 与 GitHub Releases。
+8. [v1 交付计划](notes/v1-delivery-plan.md) 与 [v1 验收清单](checklist/v1-acceptance.md)：实现与 e2e 阶段入口。
 
 ## 文档索引
 
@@ -25,6 +26,7 @@
 | [ADR-0003 配置权威与 JSON Schema 契约](adr/0003-config-authority-and-schema.md) | `--config` 文件权威、schema 单源、校验与防漂移策略。 |
 | [ADR-0004 工具契约权威与 fixture 复用](adr/0004-tool-contract-authority.md) | 工具请求/结果 schema 的权威定义、REST fixture 复用与校验策略。 |
 | [ADR-0005 私有研究目录与公开测试契约](adr/0005-private-research-and-public-contracts.md) | 私有资料不入 Git；测试所需公开契约、许可证及首提交重建边界。 |
+| [ADR-0006 版本权威与 GitHub Releases](adr/0006-version-authority-and-github-releases.md) | package.json 唯一版本来源、脚本防漂移、产物忽略与正式发布流程。 |
 
 ### 当前有效说明（notes）
 
@@ -35,6 +37,7 @@
 | [工具契约](notes/tools.md) | 四工具的参数与结构化输出、REST 映射、范围、缓存、分页、截断与引用。 |
 | [配置契约](notes/configuration.md) | 配置文件行为、缺失/无效配置处理、目录约束、凭据边界与示例说明。 |
 | [安装、配置与使用](notes/usage.md) | 生产包运行要求、配置步骤、四工具使用策略与维护构建命令。 |
+| [版本与发布](notes/release-version.md) | 版本投影、发布技能、GitHub Releases 及失败处理边界。 |
 | [首个客户端兼容说明](notes/client-compatibility.md) | Qwen Code 0.27.2 验证目标的客户端专属行为与隔离验证方式。 |
 | [上游同步基线与差异台账](notes/upstream-sync.md) | 固定上游版本、真实本地映射预定、有意差异、SYNC 状态与推进条件。 |
 | [v1 交付计划](notes/v1-delivery-plan.md) | 分阶段实现计划、测试组织、e2e 门槛与需求到验收的映射。 |

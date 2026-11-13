@@ -9,10 +9,11 @@ import { Ajv2020 } from 'ajv/dist/2020.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { startMockWeknora } from '../_shared/mock-weknora.mjs'
+import packageManifest from '../../package.json' with { type: 'json' }
 
-const version = '0.1.0'
-const archive = join('release', `weknora-agent-plugin-${version}.zip`)
-const manifestPath = join('release', `weknora-agent-plugin-${version}.manifest.json`)
+const { name, version } = packageManifest
+const archive = join('release', `${name}-${version}.zip`)
+const manifestPath = join('release', `${name}-${version}.manifest.json`)
 const specRoot = join('test', '_shared', 'upstream', 'agent-plugins')
 
 async function walk(root) {

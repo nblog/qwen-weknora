@@ -6,13 +6,17 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 3.0
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$Version = (Get-Content -LiteralPath (Join-Path $Root "package.json") -Raw | ConvertFrom-Json).version
+node (Join-Path $Root ".agents/skills/release-version/scripts/version.mjs") check
+if ($LASTEXITCODE -ne 0) { throw "Version projections are inconsistent." }
+$Package = Get-Content -LiteralPath (Join-Path $Root "package.json") -Raw | ConvertFrom-Json
+$Version = $Package.version
+$PackageName = $Package.name
 $OutputRoot = Join-Path $Root "release"
 $StagingRoot = Join-Path $Root "dist-package"
-$Stage = Join-Path $StagingRoot "weknora-agent-plugin"
-$ZipPath = Join-Path $OutputRoot "weknora-agent-plugin-$Version.zip"
-$ManifestPath = Join-Path $OutputRoot "weknora-agent-plugin-$Version.manifest.json"
-$ChecksumPath = Join-Path $OutputRoot "weknora-agent-plugin-$Version.zip.sha256"
+$Stage = Join-Path $StagingRoot $PackageName
+$ZipPath = Join-Path $OutputRoot "$PackageName-$Version.zip"
+$ManifestPath = Join-Path $OutputRoot "$PackageName-$Version.manifest.json"
+$ChecksumPath = Join-Path $OutputRoot "$PackageName-$Version.zip.sha256"
 
 function Assert-WithinRoot {
     param([string]$Target, [string]$Base)
@@ -23,13 +27,19 @@ function Assert-WithinRoot {
     }
 }
 
-foreach ($path in @($OutputRoot, $StagingRoot)) {
+foreach ($path in @($StagingRoot)) {
     Assert-WithinRoot -Target $path -Base $Root
     if (Test-Path -LiteralPath $path) {
         Remove-Item -LiteralPath $path -Recurse -Force
     }
 }
-New-Item -ItemType Directory -Path $Stage, $OutputRoot | Out-Null
+Assert-WithinRoot -Target $OutputRoot -Base $Root
+New-Item -ItemType Directory -Path $Stage, $OutputRoot -Force | Out-Null
+$OutputIgnore = Join-Path $OutputRoot ".gitignore"
+if ((Test-Path -LiteralPath $OutputIgnore) -and (Get-Content -LiteralPath $OutputIgnore -Raw).Trim() -ne '*') {
+    throw 'release/.gitignore must contain *'
+}
+[System.IO.File]::WriteAllText($OutputIgnore, "*`n", [System.Text.UTF8Encoding]::new($false))
 
 Push-Location $Root
 try {
@@ -86,14 +96,14 @@ try {
     $archiveHash = (Get-FileHash -LiteralPath $ZipPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $archiveItem = Get-Item -LiteralPath $ZipPath
     $manifest = [ordered]@{
-        name = "weknora-agent-plugin"
+        name = $PackageName
         version = $Version
         configuration = $Configuration
         created = [DateTimeOffset]::Now.ToString("o")
         archive = [System.IO.Path]::GetFileName($ZipPath)
         archiveBytes = $archiveItem.Length
         archiveSha256 = $archiveHash
-        nodeRequirement = ">=22"
+        nodeRequirement = $Package.engines.node
         files = $manifestFiles
     }
     $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $ManifestPath -Encoding utf8NoBOM

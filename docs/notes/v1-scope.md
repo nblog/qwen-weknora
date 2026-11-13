@@ -81,6 +81,7 @@ weknora-agent-plugin/
 - `PLUGIN_ROOT` 只承载随包分发的只读运行文件；`PLUGIN_DATA` 只承载用户 `config.json`（v1 无其他持久状态）。
 - 归档清单排除 `.codex-tracking/`、用户配置、测试快照、`node_modules/`、TypeScript 构建缓存等开发产物。
 - 两份 README 均随包分发，顶部互链，并包含安装、配置与开始使用的简短说明；末尾保留 `dsh-weknora` 上游来源。此为 2026-11-12 用户追加的语言与 Usage 要求。
+- 项目版本只维护 `package.json.version`；其他版本字段为脚本投影。开发仓库的 `release/` 全部忽略，预构建资产发布到 GitHub Releases；发布操作遵循 [ADR-0006](../adr/0006-version-authority-and-github-releases.md) 与项目技能。
 
 ## 兼容承诺
 

@@ -1,6 +1,6 @@
 # ADR-0002：TypeScript、Node.js >=22 与预构建 JavaScript 分发
 
-- 状态：已接受
+- 状态：已接受；产物存放与版本发布策略由 [ADR-0006](0006-version-authority-and-github-releases.md) 补充，其余技术栈与预构建决策继续有效
 - 日期：2026-11-12
 - 决策主体：用户授权按推荐基线推进（见 [v1 范围](../notes/v1-scope.md)）
 

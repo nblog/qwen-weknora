@@ -6,9 +6,10 @@ import { dirname, join, resolve } from 'node:path'
 import test from 'node:test'
 import { startMockWeknora } from '../_shared/mock-weknora.mjs'
 import { startDeterministicModel } from './deterministic-model.mjs'
+import packageManifest from '../../package.json' with { type: 'json' }
 
 const root = process.cwd()
-const archive = resolve(root, 'release', 'weknora-agent-plugin-0.1.0.zip')
+const archive = resolve(root, 'release', `${packageManifest.name}-${packageManifest.version}.zip`)
 const relativeCliEntry = join('.tmp-qwen', 'cli', 'node_modules', '@qwen-code', 'qwen-code', 'cli-entry.js')
 
 async function ensureQwenCli() {

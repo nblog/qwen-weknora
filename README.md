@@ -12,12 +12,14 @@ A [WeKnora](https://github.com/Tencent/WeKnora) integration built on [Agent Plug
 
 Requires Node.js 22+, a running WeKnora instance, and an AI client that supports Agent Plugins.
 
-1. Download the [plugin ZIP](https://github.com/nblog/qwen-weknora/raw/refs/heads/main/release/weknora-agent-plugin-0.1.0.zip).
+1. Download the plugin ZIP from [GitHub Releases](https://github.com/nblog/qwen-weknora/releases/latest).
 2. Install it with your client. For example, with Qwen Code:
 
    ```sh
-   qwen extensions install ./weknora-agent-plugin-0.1.0.zip
+   qwen extensions install /path/to/downloaded-plugin.zip
    ```
+
+   Replace the path with the ZIP you downloaded.
 
 3. Create `config.json` in the plugin data directory (`PLUGIN_DATA`) assigned by your client:
 

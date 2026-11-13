@@ -7,8 +7,9 @@ import test from 'node:test'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { jsonResponse, startMockWeknora } from '../_shared/mock-weknora.mjs'
+import packageManifest from '../../package.json' with { type: 'json' }
 
-const archive = join('release', 'weknora-agent-plugin-0.1.0.zip')
+const archive = join('release', `${packageManifest.name}-${packageManifest.version}.zip`)
 
 async function extractInstalledPackage() {
   const directory = await mkdtemp(join(tmpdir(), 'weknora-installed-e2e-'))
@@ -48,7 +49,7 @@ test('installed archive completes the full stdio MCP tool lifecycle', async () =
   try {
     await withInstalledClient(mock, {}, async client => {
       assert.equal(client.getServerVersion()?.name, 'weknora')
-      assert.equal(client.getServerVersion()?.version, '0.1.0')
+      assert.equal(client.getServerVersion()?.version, packageManifest.version)
       assert.ok(client.getServerCapabilities()?.tools, 'tools capability was not advertised')
 
       const listed = await client.listTools()

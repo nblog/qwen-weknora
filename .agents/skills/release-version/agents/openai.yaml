@@ -1,0 +1,6 @@
+interface:
+  display_name: "Release Version"
+  short_description: "Manage project versions, tags, and GitHub Releases"
+  default_prompt: "Use $release-version to prepare and publish this project's current version."
+policy:
+  allow_implicit_invocation: true
