@@ -142,6 +142,14 @@
 
 正式发布由 `npm run release:publish` 执行完整测试、准确源提交/Tag、draft 上传及下载校验，通过后才公开。实际发布状态、资产与摘要以 [GitHub Releases](https://github.com/nblog/qwen-weknora/releases) 和发布脚本核验输出为准；历史验收结果不因此改写。
 
+同日正式执行结果：
+
+- 完整构建与测试退出 0：39 tests / 39 pass / 0 fail / 0 skipped，包含首个客户端安装闭环及版本发布约束；draft 识别修正与冻结源提交的恢复分支另行通过 4 项定向回归。
+- [v0.1.0](https://github.com/nblog/qwen-weknora/releases/tag/v0.1.0) 已公开为非 prerelease 的 Latest Release，源 Tag 保持指向 `584371749c0219c0798a9568fa89678e0bc9533a`。发布控制脚本修复未改变运行时或随包输入，按冻结源提交的恢复规则继续，未移动 Tag、重建或覆盖已上传资产。
+- ZIP、manifest、SHA-256 三份资产均在 draft 阶段重新下载并逐一核验；ZIP SHA-256 为 `f98d5d1b8693080cd504b30cb84a817f57cddb24f9079bdc7b2ff26f77ad28f0`。
+- 匿名访问 Latest 页面和 ZIP 均为 HTTP 200；当前远端 `release/` 与 `.codex-tracking/` 均为 HTTP 404。本地 `release/.gitignore` 保持 `*`，Git 跟踪的这两类目录文件均为 0。
+- 技能格式、自动调用元数据及 162 个公共/技能本地链接已校验，根 AGENTS 的触发入口指向项目技能；版本与资产名均从 package.json 派生。
+
 ## 文档基线阶段已执行的检查（2026-11-12）
 
 以下仅覆盖**文档与机器可读契约本身**，不是插件运行验收：
